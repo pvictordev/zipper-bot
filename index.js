@@ -34,11 +34,6 @@ app.post(URI, async (req, res) => {
 				chat_id: chatId,
 				text: message,
 			});
-		} else if (req.body.message.photo) {
-			await axios.post(`${TELEGRAM_API}/sendMessage`, {
-				chat_id: chatId,
-				text: "I can't process images. Please send text messages only.",
-			});
 		} else {
 			await axios.post(`${TELEGRAM_API}/sendMessage`, {
 				chat_id: chatId,

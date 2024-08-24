@@ -49,7 +49,7 @@ app.post(URI, async (req, res) => {
 });
 
 app.get("*", (req, res) => {
-	res.send("GET request");
+	res.send("Hello World");
 });
 
 app.listen(PORT, async (err) => {

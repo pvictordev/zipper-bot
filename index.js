@@ -5,11 +5,11 @@ const axios = require("axios");
 const PORT = process.env.PORT || 4040;
 const app = express();
 
-const { TOKEN, NGROK_URL } = process.env;
+const { TOKEN, TUNNEL } = process.env;
 
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 const URI = `/webhook/${TOKEN}`;
-const WEBHOOK_URL = NGROK_URL + URI;
+const WEBHOOK_URL = TUNNEL + URI;
 
 const init = async () => {
 	const res = await axios.get(

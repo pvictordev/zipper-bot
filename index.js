@@ -18,6 +18,15 @@ const init = async () => {
 	console.log(res.data);
 };
 
+// const removeWebhook = async () => {
+// 	try {
+// 		const res = await axios.get(`${TELEGRAM_API}/deleteWebhook`);
+// 		console.log("Webhook removed:", res.data);
+// 	} catch (error) {
+// 		console.error("Error removing webhook", error.message);
+// 	}
+// };
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

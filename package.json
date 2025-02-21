@@ -1,23 +1,24 @@
 {
-	"name": "utilities-bot",
-	"version": "1.0.0",
-	"description": "Telegram bot used to calculate my utilities.",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "node index.js",
-		"dev": "nodemon index.js"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"dependencies": {
-		"axios": "^1.7.4",
-		"body-parser": "^1.20.2",
-		"dotenv": "^16.4.5",
-		"express": "^4.19.2"
-	},
-	"devDependencies": {
-		"nodemon": "^3.1.4"
-	}
+  "name": "utilities-bot",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Telegram bot used to calculate my utilities.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon api/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.4",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
 }

@@ -1,21 +1,21 @@
 {
-  "name": "utilities-bot",
+  "name": "zipper-bot",
   "type": "module",
   "version": "1.0.0",
-  "description": "Telegram bot used to calculate my utilities.",
+  "description": "Telegram bot used to zip files.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon api/index.js"
+    "dev": "nodemon src/api/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.7.4",
+    "axios": "^1.7.9",
     "body-parser": "^1.20.2",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "express": "^4.19.2"
   },
   "devDependencies": {

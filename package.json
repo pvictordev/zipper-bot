@@ -2,12 +2,13 @@
   "name": "zipper-bot",
   "type": "module",
   "version": "1.0.0",
-  "description": "Telegram bot used to zip files.",
-  "main": "index.js",
+  "description": "Telegram Bot for Zipping Files.",
+  "main": "src/api/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon src/api/index.js"
+    "start": "node src/api/index.js",
+    "dev": "nodemon src/api/index.js",
+    "cli": "vercel dev"
   },
   "keywords": [],
   "author": "",

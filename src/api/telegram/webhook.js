@@ -32,32 +32,38 @@ export default async function handler(req, res) {
     const photo = message.photo;
     const document = message.document;
 
-    if (!document || !photo) {
+    if (!document && !photo) {
       await axios.post(
         `https://api.telegram.org/bot${process.env.TOKEN}/sendMessage`,
         {
           chat_id: chatId,
-          text: "Incompatible file type",
+          text: "Please send a document or a photo",
         }
       );
     }
-    await axios.post(
-      `https://api.telegram.org/bot${process.env.TOKEN}/sendMessage`,
-      {
-        chat_id: chatId,
-        text: "Processing...",
-      }
-    );
 
     const downloadedFiles = [];
-    // handle document
     if (document) {
+      await axios.post(
+        `https://api.telegram.org/bot${process.env.TOKEN}/sendMessage`,
+        {
+          chat_id: chatId,
+          text: "Processing...",
+        }
+      );
       const { filePath, tempDir } = await downloadFile(document.file_id);
       downloadedFiles.push(filePath);
       tempDirs.push(tempDir);
     }
-    // handle photo photo
+    //
     else if (photo) {
+      await axios.post(
+        `https://api.telegram.org/bot${process.env.TOKEN}/sendMessage`,
+        {
+          chat_id: chatId,
+          text: "Processing...",
+        }
+      );
       const { filePath, tempDir } = await downloadFile(
         photo[photo.length - 1].file_id
       );
@@ -65,12 +71,14 @@ export default async function handler(req, res) {
       tempDirs.push(tempDir);
     }
 
-    const zipDir = await mkdtemp(path.join(os.tmpdir(), "telegram-zip-"));
-    tempDirs.push(zipDir);
-    const zipPath = path.join(zipDir, "compressed_files.zip");
-    await createZipArchive(downloadedFiles, zipPath);
+    if (document || photo) {
+      const zipDir = await mkdtemp(path.join(os.tmpdir(), "telegram-zip-"));
+      tempDirs.push(zipDir);
+      const zipPath = path.join(zipDir, "compressed_files.zip");
+      await createZipArchive(downloadedFiles, zipPath);
 
-    await sendDocument(chatId, zipPath, "Here are your compressed files!");
+      await sendDocument(chatId, zipPath, "Here are your compressed files!");
+    }
 
     res.status(200).json({ status: "ok" });
   } catch (err) {

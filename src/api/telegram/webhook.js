@@ -1,13 +1,25 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import path from "path";
+import { mkdtemp } from "fs/promises";
+import os from "os";
+
+import {
+  downloadFile,
+  createZipArchive,
+  sendDocument,
+} from "../../core/utils/telegram.js";
 
 dotenv.config();
+
+const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TOKEN}`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(200).send("Telegram Webhook Endpoint");
   }
 
+  let tempDirs = [];
   try {
     const { message } = req.body;
 
@@ -17,21 +29,62 @@ export default async function handler(req, res) {
     }
 
     const chatId = message.chat.id;
-    const text = message.text || "I can only handle text messages.";
+    const photo = message.photo;
+    const document = message.document;
 
-    console.log(`Received message from ${chatId}: ${text}`);
-
+    if (!document || !photo) {
+      await axios.post(
+        `https://api.telegram.org/bot${process.env.TOKEN}/sendMessage`,
+        {
+          chat_id: chatId,
+          text: "Incompatible file type",
+        }
+      );
+    }
     await axios.post(
       `https://api.telegram.org/bot${process.env.TOKEN}/sendMessage`,
       {
         chat_id: chatId,
-        text: text,
+        text: "Processing...",
       }
     );
+
+    const downloadedFiles = [];
+    // handle document
+    if (document) {
+      const { filePath, tempDir } = await downloadFile(document.file_id);
+      downloadedFiles.push(filePath);
+      tempDirs.push(tempDir);
+    }
+    // handle photo photo
+    else if (photo) {
+      const { filePath, tempDir } = await downloadFile(
+        photo[photo.length - 1].file_id
+      );
+      downloadedFiles.push(filePath);
+      tempDirs.push(tempDir);
+    }
+
+    const zipDir = await mkdtemp(path.join(os.tmpdir(), "telegram-zip-"));
+    tempDirs.push(zipDir);
+    const zipPath = path.join(zipDir, "compressed_files.zip");
+    await createZipArchive(downloadedFiles, zipPath);
+
+    await sendDocument(chatId, zipPath, "Here are your compressed files!");
 
     res.status(200).json({ status: "ok" });
   } catch (err) {
     console.error("Error handling message:", err);
+
+    try {
+      await axios.post(`${TELEGRAM_API}/sendMessage`, {
+        chat_id: chatId,
+        text: "Sorry, there was an error processing your files.",
+      });
+    } catch (notifyErr) {
+      console.error("Error sending error notification:", notifyErr);
+    }
+
     res.status(500).json({ error: "Something went wrong." });
   }
 }

@@ -10,6 +10,17 @@ import FormData from "form-data";
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TOKEN}`;
 const TELEGRAM_FILE_API = `https://api.telegram.org/file/bot${process.env.TOKEN}`;
 
+export async function cleanupTempDirs(tempDirs) {
+  for (const tempDir of tempDirs) {
+    try {
+      await fs.promises.rm(tempDir, { recursive: true, force: true });
+      console.log("Deleted temporary directory:", tempDir);
+    } catch (err) {
+      console.error("Error deleting temp directory:", err);
+    }
+  }
+}
+
 export async function downloadFile(fileId) {
   const {
     data: {
@@ -25,7 +36,6 @@ export async function downloadFile(fileId) {
     url: `${TELEGRAM_FILE_API}/${file_path}`,
     responseType: "stream",
   });
-
   await pipeline(response.data, fs.createWriteStream(filePath));
   return { filePath, tempDir };
 }

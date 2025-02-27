@@ -2,10 +2,6 @@
 
 Telegram Bot for Zipping Files
 
-## How it works
-
-Express.js serverless api
-
 ## Steps to run
 
 1. Clone the app and install dependencies

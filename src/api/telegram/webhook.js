@@ -16,7 +16,7 @@ dotenv.config();
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TOKEN}`;
 const QUEUE_DIR = path.join(os.tmpdir(), "telegram-queues");
 
-// Ensure queue directory exists
+// ensure queue directory exists
 async function ensureQueueDir() {
   try {
     await access(QUEUE_DIR);
@@ -36,7 +36,7 @@ async function loadQueue(queueId) {
       const data = await readFile(queuePath, "utf8");
       return JSON.parse(data);
     } catch (err) {
-      // Queue doesn't exist yet
+      // queue doesn't exist yet
       return { files: [], tempDirs: [] };
     }
   } catch (err) {
@@ -57,7 +57,7 @@ async function saveQueue(queueId, queue) {
   }
 }
 
-// Delete queue file
+// delete queue file
 async function deleteQueue(queueId) {
   try {
     const queuePath = path.join(QUEUE_DIR, `${queueId}.json`);
@@ -93,7 +93,7 @@ export default async function handler(req, res) {
 
     console.log(`Processing message for group ${queueId}`);
 
-    // Load queue from file system
+    // load queue from file system
     const queue = await loadQueue(queueId);
     console.log(`Loaded queue for ${queueId}:`, queue);
 
@@ -119,7 +119,7 @@ export default async function handler(req, res) {
 
         const zipPath = path.join(zipDir, "compressed_files.zip");
 
-        // Check if the files still exist
+        // check if the files still exist
         const existingFiles = [];
         for (const file of queue.files) {
           try {
@@ -146,7 +146,7 @@ export default async function handler(req, res) {
           `Here are your ${existingFiles.length} compressed files!`
         );
 
-        // Clean up and clear queue
+        // clean up and clear queue
         await cleanupTempDirs(queue.tempDirs);
         await deleteQueue(queueId);
 
@@ -201,14 +201,14 @@ export default async function handler(req, res) {
         fileName = `photo_${Date.now()}.jpg`;
       }
 
-      // Add to queue
+      // add to queue
       queue.files.push({
         path: filePath,
         name: fileName,
       });
       queue.tempDirs.push(tempDir);
 
-      // Save updated queue
+      // save updated queue
       await saveQueue(queueId, queue);
 
       console.log(

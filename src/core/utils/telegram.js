@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { pipeline } from "stream/promises";
 import archiver from "archiver";
-import { mkdtemp } from "fs/promises";
+import { mkdtemp, rm } from "fs/promises";
 import os from "os";
 import FormData from "form-data";
 
@@ -13,7 +13,7 @@ const TELEGRAM_FILE_API = `https://api.telegram.org/file/bot${process.env.TOKEN}
 export async function cleanupTempDirs(tempDirs) {
   for (const tempDir of tempDirs) {
     try {
-      await fs.promises.rm(tempDir, { recursive: true, force: true });
+      await rm(tempDir, { recursive: true, force: true });
       console.log("Deleted temporary directory:", tempDir);
     } catch (err) {
       console.error("Error deleting temp directory:", err);
@@ -68,5 +68,12 @@ export async function sendDocument(chatId, filePath, caption) {
 
   await axios.post(`${TELEGRAM_API}/sendDocument`, form, {
     headers: form.getHeaders(),
+  });
+}
+
+export async function sendMessage(chatId, messageContent) {
+  await axios.post(`${TELEGRAM_API}/sendMessage`, {
+    chat_id: chatId,
+    text: messageContent,
   });
 }

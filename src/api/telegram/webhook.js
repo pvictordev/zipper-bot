@@ -1,4 +1,3 @@
-import axios from "axios";
 import dotenv from "dotenv";
 import path from "path";
 import { mkdtemp, access } from "fs/promises";
@@ -8,12 +7,11 @@ import {
   createZipArchive,
   sendDocument,
   cleanupTempDirs,
+  sendMessage,
 } from "../../core/utils/telegram.js";
 import { loadQueue, saveQueue, deleteQueue } from "../../core/utils/queues.js";
 
 dotenv.config();
-
-const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TOKEN}`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -50,17 +48,14 @@ export default async function handler(req, res) {
           console.log(`/zip command received for ${queueId}. Queue:`, queue);
 
           if (!queue || queue.files.length === 0) {
-            await axios.post(`${TELEGRAM_API}/sendMessage`, {
-              chat_id: chatId,
-              text: "No files in queue to process.",
-            });
+            await sendMessage(chatId, "No files in queue to process.");
             return res.status(200).json({ status: "no files" });
           }
 
-          await axios.post(`${TELEGRAM_API}/sendMessage`, {
-            chat_id: chatId,
-            text: `Creating zip with ${queue.files.length} files...`,
-          });
+          await sendMessage(
+            chatId,
+            `Creating zip with ${queue.files.length} files...`
+          );
 
           const zipDir = await mkdtemp(path.join(os.tmpdir(), "telegram-zip-"));
           queue.tempDirs.push(zipDir);
@@ -79,10 +74,11 @@ export default async function handler(req, res) {
           }
 
           if (existingFiles.length === 0) {
-            await axios.post(`${TELEGRAM_API}/sendMessage`, {
-              chat_id: chatId,
-              text: "Sorry, the temporary files have expired. Please upload them again.",
-            });
+            await sendMessage(
+              chatId,
+              "Sorry, the temporary files have expired. Please upload them again."
+            );
+
             await deleteQueue(queueId);
             return res.status(200).json({ status: "files expired" });
           }
@@ -104,45 +100,35 @@ export default async function handler(req, res) {
           if (queue && queue.files.length > 0) {
             await cleanupTempDirs(queue.tempDirs);
             await deleteQueue(queueId);
-
-            await axios.post(`${TELEGRAM_API}/sendMessage`, {
-              chat_id: chatId,
-              text: "File queue cleared.",
-            });
+            await sendMessage(chatId, "File queue cleared.");
           } else {
-            await axios.post(`${TELEGRAM_API}/sendMessage`, {
-              chat_id: chatId,
-              text: "No files in queue.",
-            });
+            await sendMessage(chatId, "No files in queue.");
           }
           return res.status(200).json({ status: "queue cleared" });
 
         case "/help":
-          await axios.post(`${TELEGRAM_API}/sendMessage`, {
-            chat_id: chatId,
-            text:
-              "Send me multiple files and I'll zip them together.\n\n" +
+          await sendMessage(
+            chatId,
+            "Send me multiple files and I'll zip them together.\n\n" +
               "Commands:\n" +
               "/zip - Create a zip with all queued files\n" +
               "/cancel - Clear the file queue\n" +
-              "/help - Show this help message",
-          });
+              "/help - Show this help message"
+          );
+
           return res.status(200).json({ status: "help shown" });
 
         default:
-          await axios.post(`${TELEGRAM_API}/sendMessage`, {
-            chat_id: chatId,
-            text: "Please send documents or photos. Send /zip when you're done to create the archive.",
-          });
+          await sendMessage(
+            chatId,
+            "Please send documents or photos. Send /zip when you're done to create the archive."
+          );
           return res.status(200).json({ status: "default case" });
       }
     }
 
     if (document || photo) {
-      await axios.post(`${TELEGRAM_API}/sendMessage`, {
-        chat_id: chatId,
-        text: "Adding file to queue...",
-      });
+      await sendMessage(chatId, "Adding file to queue...");
 
       let filePath, tempDir, fileName;
 
@@ -171,19 +157,21 @@ export default async function handler(req, res) {
       console.log(
         `File added to queue ${queueId}. Current count: ${queue.files.length}`
       );
-      await axios.post(`${TELEGRAM_API}/sendMessage`, {
-        chat_id: chatId,
-        text: `File added to queue (${queue.files.length} files total). Send more files or use /zip to create the archive.`,
-      });
+
+      await sendMessage(
+        chatId,
+        `File added to queue (${queue.files.length} files total). Send more files or use /zip to create the archive.`
+      );
 
       return res.status(200).json({ status: "file added" });
     }
     //
     else if (!message.text) {
-      await axios.post(`${TELEGRAM_API}/sendMessage`, {
-        chat_id: chatId,
-        text: "Please send documents or photos. Send /zip when you're done to create the archive.",
-      });
+      await sendMessage(
+        chatId,
+        "Please send documents or photos. Send /zip when you're done to create the archive."
+      );
+
       return res.status(200).json({ status: "instructions sent" });
     }
 
@@ -193,10 +181,10 @@ export default async function handler(req, res) {
 
     try {
       if (chatId) {
-        await axios.post(`${TELEGRAM_API}/sendMessage`, {
-          chat_id: chatId,
-          text: "Sorry, there was an error processing your request.",
-        });
+        await sendMessage(
+          chatId,
+          "Sorry, there was an error processing your request."
+        );
       }
     } catch (notifyErr) {
       console.error("Error sending error notification:", notifyErr);

@@ -1,7 +1,6 @@
-import fs from "fs";
 import path from "path";
 import os from "os";
-import { writeFile, readFile, access } from "fs/promises";
+import { writeFile, readFile, access, mkdir, unlink } from "fs/promises";
 
 const QUEUE_DIR = path.join(os.tmpdir(), "telegram-queues");
 
@@ -10,7 +9,7 @@ async function ensureQueueDir() {
   try {
     await access(QUEUE_DIR);
   } catch (err) {
-    await fs.promises.mkdir(QUEUE_DIR, { recursive: true });
+    await mkdir(QUEUE_DIR, { recursive: true });
     console.log(`Created queue directory: ${QUEUE_DIR}`);
   }
 }
@@ -50,7 +49,7 @@ export async function saveQueue(queueId, queue) {
 export async function deleteQueue(queueId) {
   try {
     const queuePath = path.join(QUEUE_DIR, `${queueId}.json`);
-    await fs.promises.unlink(queuePath);
+    await unlink(queuePath);
     console.log(`Queue deleted: ${queuePath}`);
   } catch (err) {
     console.error("Error deleting queue:", err);

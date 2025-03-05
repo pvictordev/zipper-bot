@@ -2,7 +2,6 @@ import axios from "axios";
 import dotenv from "dotenv";
 import path from "path";
 import { mkdtemp, access } from "fs/promises";
-import fs from "fs";
 import os from "os";
 import {
   downloadFile,
@@ -133,12 +132,7 @@ export default async function handler(req, res) {
         default:
           await axios.post(`${TELEGRAM_API}/sendMessage`, {
             chat_id: chatId,
-            text:
-              "Unsupported file type.\n\n" +
-              "Commands:\n" +
-              "/zip - Create a zip with all queued files\n" +
-              "/cancel - Clear the file queue\n" +
-              "/help - Show this help message",
+            text: "Please send documents or photos. Send /zip when you're done to create the archive.",
           });
           return res.status(200).json({ status: "default case" });
       }
@@ -177,7 +171,6 @@ export default async function handler(req, res) {
       console.log(
         `File added to queue ${queueId}. Current count: ${queue.files.length}`
       );
-
       await axios.post(`${TELEGRAM_API}/sendMessage`, {
         chat_id: chatId,
         text: `File added to queue (${queue.files.length} files total). Send more files or use /zip to create the archive.`,

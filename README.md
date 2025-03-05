@@ -1,6 +1,6 @@
 # Zipper Bot
 
-Telegram Bot for Zipping Files
+Telegram Bot for archiving files
 
 ## Steps to run
 

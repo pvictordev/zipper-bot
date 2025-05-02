@@ -2,7 +2,7 @@
 
 A serverless Telegram bot made to archive files.
 
-## How to Run
+## How to run
 
 1. **Clone the repo and install dependencies**
 

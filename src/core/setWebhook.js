@@ -6,6 +6,7 @@ const { TOKEN, TUNNEL } = process.env;
 
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 const WEBHOOK_URL = `${TUNNEL}/webhook/${TOKEN}`;
+
 async function setWebhook() {
   try {
     const res = await axios.get(
